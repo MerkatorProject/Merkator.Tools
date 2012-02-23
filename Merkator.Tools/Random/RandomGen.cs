@@ -27,6 +27,7 @@ namespace Merkator.Tools
 		private uint byteStore;
 		private uint shortStore;
 		private double gaussStore;
+		private bool refilling;
 
 
 		[ContractInvariantMethod]
@@ -40,7 +41,17 @@ namespace Merkator.Tools
 
 		private void Refill()
 		{
-			provider(buffer);
+			if (refilling)
+				throw new InvalidOperationException("Refill reentered");
+			try
+			{
+				refilling = true;
+				provider(buffer);
+			}
+			finally
+			{
+				refilling = false;
+			}
 		}
 
 		protected void Require(int ints)
@@ -117,11 +128,11 @@ namespace Merkator.Tools
 
 		public double Gaussian()
 		{
-			double oldGauss = this.gaussStore;
-			if (!double.IsNaN(oldGauss))
+			double localGaussStore = this.gaussStore;
+			if (!double.IsNaN(localGaussStore))
 			{
 				this.gaussStore = double.NaN;
-				return oldGauss;
+				return localGaussStore;
 			}
 			else
 			{
@@ -199,13 +210,13 @@ namespace Merkator.Tools
 			if (localBitStore > 1)
 			{
 				bitStore = localBitStore >> 1;
-				return (bitStore & 1) != 0;
+				return (localBitStore & 1) != 0;
 			}
 			else
 			{
 				localBitStore = UInt32();
-				bitStore = localBitStore | 0x80000000;
-				return (int)localBitStore < 0;
+				bitStore = (localBitStore >> 1) | 0x80000000;
+				return (localBitStore & 1) != 0;
 			}
 		}
 
@@ -230,8 +241,8 @@ namespace Merkator.Tools
 			else
 			{
 				localByteStore = UInt32();
-				byteStore = localByteStore | 0xFF000000;
-				return (byte)(localByteStore >> 24);
+				byteStore = (localByteStore >> 8) | 0x01000000;
+				return (byte)localByteStore;
 			}
 		}
 
@@ -243,7 +254,7 @@ namespace Merkator.Tools
 		public ushort UInt16()
 		{
 			var localShortStore = shortStore;
-			if (localShortStore >= 0x100)
+			if (localShortStore >= 0x10000)
 			{
 				shortStore = localShortStore >> 16;
 				return (ushort)localShortStore;
@@ -251,8 +262,8 @@ namespace Merkator.Tools
 			else
 			{
 				localShortStore = UInt32();
-				shortStore = localShortStore | 0xFFFF0000;
-				return (ushort)(localShortStore >> 16);
+				shortStore = localShortStore >> 16 | 0x00010000;
+				return (ushort)localShortStore;
 			}
 		}
 

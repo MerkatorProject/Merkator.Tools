@@ -62,7 +62,7 @@ namespace Merkator.Tools
 		{
 			Contract.Ensures(Contract.Result<double>() >= 0);
 			Contract.Ensures(Contract.Result<double>() < 1);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		double IRandomGen.UniformStartEnd(double start, double exclusiveEnd)
@@ -72,7 +72,7 @@ namespace Merkator.Tools
 			Contract.Requires(exclusiveEnd < double.PositiveInfinity);
 			Contract.Ensures(Contract.Result<double>() >= start);
 			Contract.Ensures(Contract.Result<double>() < exclusiveEnd);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		double IRandomGen.UniformStartLength(double start, double length)
@@ -82,14 +82,14 @@ namespace Merkator.Tools
 			Contract.Requires(length < double.PositiveInfinity);
 			Contract.Ensures(Contract.Result<double>() >= start);
 			Contract.Ensures(Contract.Result<double>() < start + length);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		float IRandomGen.UniformSingle()
 		{
 			Contract.Ensures(Contract.Result<float>() >= 0);
 			Contract.Ensures(Contract.Result<float>() < 1);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		float IRandomGen.UniformSingleStartEnd(float start, float exclusiveEnd)
@@ -99,7 +99,7 @@ namespace Merkator.Tools
 			Contract.Requires(exclusiveEnd < float.PositiveInfinity);
 			Contract.Ensures(Contract.Result<float>() >= start);
 			Contract.Ensures(Contract.Result<float>() < exclusiveEnd);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		float IRandomGen.UniformSingleStartLength(float start, float length)
@@ -109,19 +109,19 @@ namespace Merkator.Tools
 			Contract.Requires(length < float.PositiveInfinity);
 			Contract.Ensures(Contract.Result<float>() >= start);
 			Contract.Ensures(Contract.Result<float>() < start + length);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		double IRandomGen.Gaussian()
 		{
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		double IRandomGen.Gaussian(double standardDeviation)
 		{
 			Contract.Requires(standardDeviation >= 0);
 			Contract.Requires(standardDeviation < double.PositiveInfinity);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		double IRandomGen.Gaussian(double mean, double standardDeviation)
@@ -130,86 +130,86 @@ namespace Merkator.Tools
 			Contract.Requires(mean < double.PositiveInfinity);
 			Contract.Requires(standardDeviation >= 0);
 			Contract.Requires(standardDeviation < double.PositiveInfinity);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		double IRandomGen.Exponential()
 		{
 			Contract.Ensures(Contract.Result<double>() >= 0);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		double IRandomGen.ExponentialMean(double mean)
 		{
 			Contract.Requires(mean >= 0);
 			Contract.Ensures(Contract.Result<double>() >= 0);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		double IRandomGen.ExponentialRate(double rate)
 		{
 			Contract.Requires(rate >= 0);
 			Contract.Ensures(Contract.Result<double>() >= 0);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		int IRandomGen.Poisson(double mean)
 		{
 			Contract.Requires(mean >= 0);
 			Contract.Ensures(Contract.Result<int>() >= 0);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		bool IRandomGen.Bool()
 		{
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		bool IRandomGen.Bool(double probability)
 		{
 			Contract.Requires(probability >= 0);
 			Contract.Requires(probability <= 1);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		sbyte IRandomGen.SByte()
 		{
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		byte IRandomGen.Byte()
 		{
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		short IRandomGen.Int16()
 		{
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		ushort IRandomGen.UInt16()
 		{
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		int IRandomGen.Int32()
 		{
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		uint IRandomGen.UInt32()
 		{
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		long IRandomGen.Int64()
 		{
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		ulong IRandomGen.UInt64()
 		{
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		int IRandomGen.UniformInt(int count)
@@ -217,7 +217,7 @@ namespace Merkator.Tools
 			Contract.Requires(count >= 1);
 			Contract.Ensures(Contract.Result<int>() >= 0);
 			Contract.Ensures(Contract.Result<int>() < count);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		int IRandomGen.UniformIntStartEnd(int start, int inclusiveEnd)
@@ -225,7 +225,7 @@ namespace Merkator.Tools
 			Contract.Requires(inclusiveEnd >= start);
 			Contract.Ensures(Contract.Result<int>() >= start);
 			Contract.Ensures(Contract.Result<int>() <= inclusiveEnd);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		int IRandomGen.UniformIntStartCount(int start, int count)
@@ -234,7 +234,7 @@ namespace Merkator.Tools
 			Contract.Requires(start + count >= start);//No int overflow
 			Contract.Ensures(Contract.Result<int>() >= start);
 			Contract.Ensures(Contract.Result<int>() < start + count);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		long IRandomGen.UniformInt(long count)
@@ -242,7 +242,7 @@ namespace Merkator.Tools
 			Contract.Requires(count >= 1);
 			Contract.Ensures(Contract.Result<long>() >= 0);
 			Contract.Ensures(Contract.Result<long>() < count);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		long IRandomGen.UniformIntStartEnd(long start, long inclusiveEnd)
@@ -250,7 +250,7 @@ namespace Merkator.Tools
 			Contract.Requires(inclusiveEnd >= start);
 			Contract.Ensures(Contract.Result<long>() >= start);
 			Contract.Ensures(Contract.Result<long>() <= inclusiveEnd);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		long IRandomGen.UniformIntStartCount(long start, long count)
@@ -259,7 +259,7 @@ namespace Merkator.Tools
 			Contract.Requires(start + count >= start);//No int overflow
 			Contract.Ensures(Contract.Result<long>() >= start);
 			Contract.Ensures(Contract.Result<long>() < start + count);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		int IRandomGen.Binomial(int n, double probability)
@@ -269,7 +269,7 @@ namespace Merkator.Tools
 			Contract.Requires(probability <= 1);
 			Contract.Ensures(Contract.Result<int>() >= 0);
 			Contract.Ensures(Contract.Result<int>() <= n);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		void IRandomGen.Bytes(byte[] data, int start, int count)
@@ -279,20 +279,20 @@ namespace Merkator.Tools
 			Contract.Requires(count >= 0);
 			Contract.Requires(start + count <= data.Length);
 			Contract.Requires(start + count >= start);//No int overflow
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 
 		public uint UniformUInt(uint count)
 		{
 			Contract.Ensures(Contract.Result<uint>() < count);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 
 		public ulong UniformUInt(ulong count)
 		{
 			Contract.Ensures(Contract.Result<ulong>() < count);
-			throw new NotImplementedException();
+			throw new Exception();
 		}
 	}
 }

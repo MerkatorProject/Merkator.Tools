@@ -5,7 +5,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 
-namespace Merkator.Tool.Util
+namespace Merkator.Tools
 {
 	/// <summary>
 	/// Delegate that is used to fill the int array with random data

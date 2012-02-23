@@ -5,7 +5,7 @@ using System.Text;
 using System.Diagnostics.Contracts;
 using System.Diagnostics;
 
-namespace Merkator.Tool.Util
+namespace Merkator.Tools
 {
 	[ContractClass(typeof(ContractForIRandomGen))]
 	public interface IRandomGen

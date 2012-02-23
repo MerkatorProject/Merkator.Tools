@@ -11,7 +11,7 @@ namespace Merkator.Tools.Tests
 	{
 		public static RandomGen CreateFromInts(params int[] input)
 		{
-			int[] inputCopy = (int[])input.Clone();
+			int[] inputCopy = input.Reverse().ToArray();
 			RandomIntDataProvider provider = (buf) =>
 				{
 					Contract.Assert(buf.Length == inputCopy.Length);

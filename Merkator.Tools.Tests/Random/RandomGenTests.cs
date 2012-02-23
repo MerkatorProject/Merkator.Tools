@@ -55,11 +55,14 @@ namespace Merkator.Tools.Tests
 		#endregion
 
 		[TestMethod]
-		public void TestMethod1()
+		public void BasicIntTest()
 		{
-			//
-			// TODO: Add test logic here
-			//
+			var rng=DummyProvider.CreateFromInts(1, 2, 3, 4, 5);
+			Assert.AreEqual(1, rng.Int32());
+			Assert.AreEqual(2, rng.Int32());
+			Assert.AreEqual(3, rng.Int32());
+			Assert.AreEqual(4, rng.Int32());
+			Assert.AreEqual(5, rng.Int32());
 		}
 	}
 }

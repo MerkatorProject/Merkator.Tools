@@ -14,6 +14,16 @@ namespace Merkator.Tools.Tests
 
 		}
 
+		private static bool IsJustLess(double expected, double actual)
+		{
+			return (actual < expected) && (actual > expected - 1E15);
+		}
+
+		private static bool IsJustLess(float expected, float actual)
+		{
+			return (actual < expected) && (actual > expected - 1E7);
+		}
+
 		private TestContext testContextInstance;
 
 		/// <summary>
@@ -55,7 +65,7 @@ namespace Merkator.Tools.Tests
 		#endregion
 
 		[TestMethod]
-		public void BasicIntTest()
+		public void Int32()
 		{
 			var rng = DummyProvider.CreateFromInts(1, 2, 3, 4, 5);
 			Assert.AreEqual(1, rng.Int32());
@@ -66,18 +76,51 @@ namespace Merkator.Tools.Tests
 		}
 
 		[TestMethod]
-		public void UniformDouble0()
+		public void Uniform0()
 		{
 			var rng = DummyProvider.CreateFromInts(0, 0);
 			Assert.AreEqual(0.0, rng.Uniform());
 		}
 
 		[TestMethod]
-		public void UniformDouble1()
+		public void Uniform1()
 		{
 			var rng = DummyProvider.CreateFromInts(-1, -1);
-			Assert.IsTrue(rng.Uniform() > 1 - 1E15);
-			Assert.IsTrue(rng.Uniform() < 1);
+			Assert.IsTrue(IsJustLess(1, rng.Uniform()));
+		}
+
+		[TestMethod]
+		public void UniformSingle0()
+		{
+			var rng = DummyProvider.CreateFromInts(0, 0x39393939);
+			Assert.AreEqual(0.0, rng.UniformSingle());
+		}
+
+		[TestMethod]
+		public void UniformSingle1()
+		{
+			var rng = DummyProvider.CreateFromInts(-1, 0x39393939);
+			Assert.IsTrue(IsJustLess(1, rng.UniformSingle()));
+		}
+
+		[TestMethod]
+		public void UniformStartEnd()
+		{
+			var rng = DummyProvider.CreateFromInts(0, 0, -1, -1);
+			var n1 = rng.UniformStartEnd(1,4);
+			var n2 = rng.UniformStartEnd(1,4);
+			Assert.AreEqual(1, n1);
+			Assert.IsTrue(IsJustLess(4, n2));
+		}
+
+		[TestMethod]
+		public void UniformStartLength()
+		{
+			var rng = DummyProvider.CreateFromInts(0, 0, -1, -1);
+			var n1 = rng.UniformStartLength(1, 3);
+			var n2 = rng.UniformStartLength(1, 3);
+			Assert.AreEqual(1, n1);
+			Assert.IsTrue(IsJustLess(4, n2));
 		}
 
 		[TestMethod]

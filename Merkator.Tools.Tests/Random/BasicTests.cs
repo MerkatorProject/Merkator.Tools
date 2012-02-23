@@ -124,6 +124,26 @@ namespace Merkator.Tools.Tests
 		}
 
 		[TestMethod]
+		public void UniformSingleStartEnd()
+		{
+			var rng = DummyProvider.CreateFromInts(0, 0, -1, -1);
+			var n1 = rng.UniformSingleStartEnd(1, 4);
+			var n2 = rng.UniformSingleStartEnd(1, 4);
+			Assert.AreEqual(1, n1);
+			Assert.IsTrue(IsJustLess(4, n2));
+		}
+
+		[TestMethod]
+		public void UniformSingleStartLength()
+		{
+			var rng = DummyProvider.CreateFromInts(0, 0, -1, -1);
+			var n1 = rng.UniformSingleStartLength(1, 3);
+			var n2 = rng.UniformSingleStartLength(1, 3);
+			Assert.AreEqual(1, n1);
+			Assert.IsTrue(IsJustLess(4, n2));
+		}
+
+		[TestMethod]
 		public void Bool()
 		{
 			for (int i = 0; i < 64; i++)

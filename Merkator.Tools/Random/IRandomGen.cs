@@ -285,12 +285,14 @@ namespace Merkator.Tools
 
 		public uint UniformUInt(uint count)
 		{
+			Contract.Requires(count > 0);
 			Contract.Ensures(Contract.Result<uint>() < count);
 			throw new Exception();
 		}
 
 		public ulong UniformUInt(ulong count)
 		{
+			Contract.Requires(count > 0);
 			Contract.Ensures(Contract.Result<ulong>() < count);
 			throw new Exception();
 		}

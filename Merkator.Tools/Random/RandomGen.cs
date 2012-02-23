@@ -337,50 +337,86 @@ namespace Merkator.Tools
 			}
 		}
 
+		private uint InternalUniformUInt(uint maxResult)
+		{
+			uint rand;
+			uint count = maxResult + 1;
+
+			if (maxResult < 0x100)
+			{
+				uint usefulCount = (0x100 / count) * count;
+				do
+				{
+					rand = Byte();
+				} while (rand >= usefulCount);
+				return rand % count;
+			}
+			else if (maxResult < 0x10000)
+			{
+				uint usefulCount = (0x10000 / count) * count;
+				do
+				{
+					rand = UInt16();
+				} while (rand >= usefulCount);
+				return rand % count;
+			}
+			else if (maxResult != uint.MaxValue)
+			{
+				uint usefulCount = (uint.MaxValue / count) * count;//reduces upper bound by 1, to avoid long division
+				do
+				{
+					rand = UInt32();
+				} while (rand >= usefulCount);
+				return rand % count;
+			}
+			else
+			{
+				return UInt32();
+			}
+		}
+
+		private ulong InternalUniformUInt(ulong maxResult)
+		{
+			if (maxResult < 0x100000000)
+				return InternalUniformUInt((uint)maxResult);
+			else if (maxResult < ulong.MaxValue)
+			{
+				ulong rand;
+				ulong count = maxResult + 1;
+				ulong usefulCount = (ulong.MaxValue / count) * count;//reduces upper bound by 1, since ulong can't represent any more
+				do
+				{
+					rand = UInt64();
+				} while (rand >= usefulCount);
+				return rand % count;
+			}
+			else
+				return UInt64();
+		}
+
 		public int UniformInt(int count)
 		{
-			return (int)UniformInt((uint)count);
+			return (int)InternalUniformUInt((uint)count - 1);
 		}
 
 		public uint UniformUInt(uint count)
 		{
-			Contract.Requires(count > 0);
-			Contract.Ensures(Contract.Result<uint>() < count);
-			uint max;
-			uint rand;
-			uint maxUseful;
-			do
-			{
-				if (count <= byte.MaxValue)
-				{
-					max = byte.MaxValue;
-					rand = Byte();
-				}
-				else if (count <= ushort.MaxValue)
-				{
-					max = ushort.MaxValue;
-					rand = UInt16();
-				}
-				else
-				{
-					max = uint.MaxValue;
-					rand = UInt32();
-				}
-				maxUseful = (max / count) * count;
-			}
-			while (rand > maxUseful);
+			return InternalUniformUInt(count - 1);
+		}
 
-			return rand % count;
+		public long UniformInt(long count)
+		{
+			return (long)InternalUniformUInt((ulong)count - 1);
 		}
 
 		public ulong UniformUInt(ulong count)
 		{
-			throw new NotImplementedException();
+			return InternalUniformUInt(count - 1);
 		}
 
 		public int UniformIntStartEnd(int start, int inclusiveEnd)
 		{
-			return start + UniformInt(inclusiveEnd - start + 1);
+			return start + (int)InternalUniformUInt((uint)inclusiveEnd - (uint)start);
 		}
 
 		public int UniformIntStartCount(int start, int count)
@@ -388,19 +424,15 @@ namespace Merkator.Tools
 			return start + UniformInt(count);
 		}
 
-		public long UniformInt(long count)
-		{
-			throw new NotImplementedException();
-		}
 
 		public long UniformIntStartEnd(long start, long inclusiveEnd)
 		{
-			return start + (long)UniformUInt((ulong)(inclusiveEnd - start + 1));
+			return start + (long)UniformUInt((ulong)inclusiveEnd -(ulong) start);
 		}
 
 		public long UniformIntStartCount(long start, long count)
 		{
-			throw new NotImplementedException();
+			return start + UniformInt(count);
 		}
 
 		public int Binomial(int n, double probability)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Merkator.Tool.Util
+namespace Merkator.Tools
 {
 	//http://stackoverflow.com/a/1227137
 	internal class Well512

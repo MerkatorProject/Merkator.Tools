@@ -6,17 +6,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Merkator.Tools.Tests
 {
-	/// <summary>
-	/// Summary description for UnitTest1
-	/// </summary>
 	[TestClass]
-	public class UnitTest1
+	public class RandomGenTest
 	{
-		public UnitTest1()
+		public RandomGenTest()
 		{
-			//
-			// TODO: Add constructor logic here
-			//
+
 		}
 
 		private TestContext testContextInstance;

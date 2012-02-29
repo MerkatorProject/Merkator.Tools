@@ -19,50 +19,50 @@ namespace Merkator.Tools
 	/// </summary>
 	public class RandomGen : IRandomGen
 	{
-		private readonly RandomIntDataProvider provider;
+		private readonly RandomIntDataProvider _provider;
 
-		protected readonly int[] buffer;
-		protected int index;
-		private uint bitStore;
-		private uint byteStore;
-		private uint shortStore;
-		private double gaussStore;
-		private bool refilling;
+		protected readonly int[] Buffer;
+		protected int Index;
+		private uint _bitStore;
+		private uint _byteStore;
+		private uint _shortStore;
+		private double _gaussStore;
+		private bool _refilling;
 
 
 		[ContractInvariantMethod]
 		void ObjectInvariant()
 		{
-			Contract.Invariant(provider != null);
-			Contract.Invariant(buffer != null);
-			Contract.Invariant(index >= 0);
-			Contract.Invariant(index <= buffer.Length);
+			Contract.Invariant(_provider != null);
+			Contract.Invariant(Buffer != null);
+			Contract.Invariant(Index >= 0);
+			Contract.Invariant(Index <= Buffer.Length);
 		}
 
 		private void Refill()
 		{
-			if (refilling)
+			if (_refilling)
 				throw new InvalidOperationException("Refill reentered");
 			try
 			{
-				refilling = true;
-				provider(buffer);
+				_refilling = true;
+				_provider(Buffer);
 			}
 			finally
 			{
-				refilling = false;
+				_refilling = false;
 			}
 		}
 
 		protected void Require(int ints)
 		{
 			Contract.Requires(ints >= 0);
-			Contract.Requires(ints <= buffer.Length);
-			index -= ints;
-			if (index < 0)
+			Contract.Requires(ints <= Buffer.Length);
+			Index -= ints;
+			if (Index < 0)
 			{
 				Refill();
-				index = buffer.Length - ints;
+				Index = Buffer.Length - ints;
 			}
 		}
 
@@ -114,7 +114,7 @@ namespace Merkator.Tools
 			{
 				// The seemingly redundant cast is necessary to coerce the value to float
 				// else the result might have a higher precision
-				result = (float)((exclusiveEnd - start) * Uniform() + start);
+				result = (float)((exclusiveEnd - start) * UniformSingle() + start);
 			} while (result >= exclusiveEnd);
 			// The loop is necessary, because rounding errors might push the result so it's equal to exclusiveEnd, which would violate the contract
 			// But that event is *very* rare
@@ -128,10 +128,10 @@ namespace Merkator.Tools
 
 		public double Gaussian()
 		{
-			double localGaussStore = this.gaussStore;
+			double localGaussStore = this._gaussStore;
 			if (!double.IsNaN(localGaussStore))
 			{
-				this.gaussStore = double.NaN;
+				this._gaussStore = double.NaN;
 				return localGaussStore;
 			}
 			else
@@ -144,7 +144,7 @@ namespace Merkator.Tools
 
 				double gauss1 = radius * Math.Cos(angle);
 				double gauss2 = radius * Math.Sin(angle);
-				this.gaussStore = gauss2;
+				this._gaussStore = gauss2;
 				return gauss1;
 			}
 		}
@@ -165,11 +165,11 @@ namespace Merkator.Tools
 			Contract.Requires(bufferSizeInBytes % 4 == 0);
 			Contract.Requires(provider != null);
 			byte[] byteBuffer = new byte[bufferSizeInBytes];
-			this.buffer = new int[bufferSizeInBytes / 4];
-			this.provider = (int[] randomData) =>
+			this.Buffer = new int[bufferSizeInBytes / 4];
+			this._provider = (int[] randomData) =>
 				{
 					provider(byteBuffer);
-					Buffer.BlockCopy(byteBuffer, 0, buffer, 0, bufferSizeInBytes);
+					System.Buffer.BlockCopy(byteBuffer, 0, Buffer, 0, bufferSizeInBytes);
 				};
 		}
 
@@ -178,8 +178,8 @@ namespace Merkator.Tools
 			Contract.Requires(bufferSizeInBytes >= 8);
 			Contract.Requires(bufferSizeInBytes % 4 == 0);
 			Contract.Requires(provider != null);
-			this.provider = provider;
-			this.buffer = new int[bufferSizeInBytes / 4];
+			this._provider = provider;
+			this.Buffer = new int[bufferSizeInBytes / 4];
 		}
 
 		public double Exponential()
@@ -206,16 +206,16 @@ namespace Merkator.Tools
 
 		public bool Bool()
 		{
-			var localBitStore = bitStore;
+			var localBitStore = _bitStore;
 			if (localBitStore > 1)
 			{
-				bitStore = localBitStore >> 1;
+				_bitStore = localBitStore >> 1;
 				return (localBitStore & 1) != 0;
 			}
 			else
 			{
 				localBitStore = UInt32();
-				bitStore = (localBitStore >> 1) | 0x80000000;
+				_bitStore = (localBitStore >> 1) | 0x80000000;
 				return (localBitStore & 1) != 0;
 			}
 		}
@@ -232,16 +232,16 @@ namespace Merkator.Tools
 
 		public byte Byte()
 		{
-			var localByteStore = byteStore;
+			var localByteStore = _byteStore;
 			if (localByteStore >= 0x100)
 			{
-				byteStore = localByteStore >> 8;
+				_byteStore = localByteStore >> 8;
 				return (byte)localByteStore;
 			}
 			else
 			{
 				localByteStore = UInt32();
-				byteStore = (localByteStore >> 8) | 0x01000000;
+				_byteStore = (localByteStore >> 8) | 0x01000000;
 				return (byte)localByteStore;
 			}
 		}
@@ -253,42 +253,42 @@ namespace Merkator.Tools
 
 		public ushort UInt16()
 		{
-			var localShortStore = shortStore;
+			var localShortStore = _shortStore;
 			if (localShortStore >= 0x10000)
 			{
-				shortStore = localShortStore >> 16;
+				_shortStore = localShortStore >> 16;
 				return (ushort)localShortStore;
 			}
 			else
 			{
 				localShortStore = UInt32();
-				shortStore = localShortStore >> 16 | 0x00010000;
+				_shortStore = localShortStore >> 16 | 0x00010000;
 				return (ushort)localShortStore;
 			}
 		}
 
 		public int Int32()
 		{
-			int index = --this.index;
+			int index = --this.Index;
 			if (index < 0)
 			{
 				Refill();
-				index = buffer.Length - 1;
-				this.index = index;
+				index = Buffer.Length - 1;
+				this.Index = index;
 			}
-			return buffer[index];
+			return Buffer[index];
 		}
 
 		public uint UInt32()
 		{
-			int index = --this.index;
+			int index = --this.Index;
 			if (index < 0)
 			{
 				Refill();
-				index = buffer.Length - 1;
-				this.index = index;
+				index = Buffer.Length - 1;
+				this.Index = index;
 			}
-			return (uint)buffer[index];
+			return (uint)Buffer[index];
 		}
 
 		public Int64 Int64()
@@ -298,29 +298,29 @@ namespace Merkator.Tools
 
 		public UInt64 UInt64()
 		{
-			int index = (this.index -= 2);
+			int index = (this.Index -= 2);
 			if (index < 0)
 			{
 				Refill();
-				index = buffer.Length - 2;
-				this.index = index;
+				index = Buffer.Length - 2;
+				this.Index = index;
 			}
-			return (ulong)(uint)buffer[index] << 32 | (uint)buffer[index + 1];
+			return (ulong)(uint)Buffer[index] << 32 | (uint)Buffer[index + 1];
 		}
 
 		public void Bytes(byte[] data, int start, int count)
 		{
-			int byteIndex = index * sizeof(int);
+			int byteIndex = Index * sizeof(int);
 			while (count > byteIndex)
 			{
-				Buffer.BlockCopy(buffer, 0, data, start, byteIndex);
+				System.Buffer.BlockCopy(Buffer, 0, data, start, byteIndex);
 				start += byteIndex;
 				Refill();
-				byteIndex = buffer.Length * sizeof(int);
+				byteIndex = Buffer.Length * sizeof(int);
 			}
 			byteIndex -= count;
-			Buffer.BlockCopy(buffer, byteIndex, data, start, count);
-			index = byteIndex / sizeof(int);
+			System.Buffer.BlockCopy(Buffer, byteIndex, data, start, count);
+			Index = byteIndex / sizeof(int);
 		}
 
 		private static DefaultRandomGen _default = new DefaultRandomGen();

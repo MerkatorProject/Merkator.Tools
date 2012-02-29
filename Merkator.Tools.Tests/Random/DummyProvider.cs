@@ -14,8 +14,11 @@ namespace Merkator.Tools.Tests
 			int[] inputCopy = input.Reverse().ToArray();
 			RandomIntDataProvider provider = (buf) =>
 				{
+					if (inputCopy == null)
+						throw new InvalidOperationException("Read beyond end of dummy provider");
 					Contract.Assert(buf.Length == inputCopy.Length);
 					Array.Copy(inputCopy, buf, inputCopy.Length);
+					inputCopy = null;
 				};
 			return new RandomGen(provider, inputCopy.Length * sizeof(int));
 		}

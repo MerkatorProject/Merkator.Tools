@@ -50,5 +50,19 @@ namespace Merkator.Tools.Tests.Random
 		{
 			ulong[] bins = FillToBins(23, 0.0, 1.0, RandomGen.Default.Uniform, 50000);
 		}
+
+		[TestMethod]
+		public void UniformIntTest1()
+		{
+			const int samplesPerBucket = 1000;
+			const int buckets = 65538;
+			var rng = RandomGen.CreateFast();
+			var hist=new int[buckets];
+			for(int i=0;i<samplesPerBucket*buckets;i++)
+			{
+				hist[rng.UniformUInt((uint)buckets)]++;
+			}
+			var averageError=hist.Select(n => (long) (n - samplesPerBucket)).Select(delta => delta*delta).Sum()*1.0/buckets/samplesPerBucket;
+		}
 	}
 }

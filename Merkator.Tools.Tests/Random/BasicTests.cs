@@ -107,8 +107,8 @@ namespace Merkator.Tools.Tests
 		public void UniformStartEnd()
 		{
 			var rng = DummyProvider.CreateFromInts(0, 0, -1, -1);
-			var n1 = rng.UniformStartEnd(1,4);
-			var n2 = rng.UniformStartEnd(1,4);
+			var n1 = rng.UniformStartEnd(1, 4);
+			var n2 = rng.UniformStartEnd(1, 4);
 			Assert.AreEqual(1, n1);
 			Assert.IsTrue(IsJustLess(4, n2));
 		}
@@ -190,6 +190,13 @@ namespace Merkator.Tools.Tests
 			UInt64 n2 = rng.UInt64();
 			Assert.AreEqual(0x0706050403020100ul, n1);
 			Assert.AreEqual(0x0F0E0D0C0B0A0908ul, n2);
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void Bytes()
+		{
+			RandomGen.Default.Bytes(null);
 		}
 	}
 }

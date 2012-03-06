@@ -2,6 +2,7 @@
 *.user
 *.ncb
 *.vsp
+*.psess
 .svn/
 bin/
 obj/

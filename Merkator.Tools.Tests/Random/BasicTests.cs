@@ -194,7 +194,7 @@ namespace Merkator.Tools.Tests
 
 		[TestMethod]
 		[ExpectedException(typeof(ArgumentNullException))]
-		public void Bytes()
+		public void ArgumentCheckingIsOn()
 		{
 			RandomGen.Default.Bytes(null);
 		}

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 
 namespace Merkator.Tools
@@ -19,50 +15,52 @@ namespace Merkator.Tools
 	/// </summary>
 	public class RandomGen : IRandomGen
 	{
-		private readonly RandomIntDataProvider provider;
 
-		protected readonly int[] buffer;
-		protected int index;
-		private uint bitStore;
-		private uint byteStore;
-		private uint shortStore;
-		private double gaussStore;
-		private bool refilling;
+		private static readonly DefaultRandomGen _default = new DefaultRandomGen();
+		private readonly RandomIntDataProvider _provider;
+
+		protected readonly int[] Buffer;
+		protected int Index;
+		private uint _bitStore;
+		private uint _byteStore;
+		private uint _shortStore;
+		private double _gaussStore;
+		private bool _refilling;
 
 
 		[ContractInvariantMethod]
 		void ObjectInvariant()
 		{
-			Contract.Invariant(provider != null);
-			Contract.Invariant(buffer != null);
-			Contract.Invariant(index >= 0);
-			Contract.Invariant(index <= buffer.Length);
+			Contract.Invariant(_provider != null);
+			Contract.Invariant(Buffer != null);
+			Contract.Invariant(Index >= 0);
+			Contract.Invariant(Index <= Buffer.Length);
 		}
 
 		private void Refill()
 		{
-			if (refilling)
+			if (_refilling)
 				throw new InvalidOperationException("Refill reentered");
 			try
 			{
-				refilling = true;
-				provider(buffer);
+				_refilling = true;
+				_provider(Buffer);
 			}
 			finally
 			{
-				refilling = false;
+				_refilling = false;
 			}
 		}
 
-		protected void Require(int ints)
+		protected void Require(int numberOfInts)
 		{
-			Contract.Requires(ints >= 0);
-			Contract.Requires(ints <= buffer.Length);
-			index -= ints;
-			if (index < 0)
+			Contract.Requires(numberOfInts >= 0);
+			Contract.Requires(numberOfInts <= Buffer.Length);
+			Index -= numberOfInts;
+			if (Index < 0)
 			{
 				Refill();
-				index = buffer.Length - ints;
+				Index = Buffer.Length - numberOfInts;
 			}
 		}
 
@@ -84,7 +82,10 @@ namespace Merkator.Tools
 			{
 				// The seemingly redundant cast is necessary to coerce the value to double
 				// else the result might have a higher precision
+
+				// ReSharper disable RedundantCast
 				result = (double)((exclusiveEnd - start) * Uniform() + start);
+				// ReSharper restore RedundantCast
 			} while (result >= exclusiveEnd);
 			// The loop is necessary, because rounding errors might push the result so it's equal to exclusiveEnd, which would violate the contract
 			// But that event is *very* rare
@@ -114,7 +115,9 @@ namespace Merkator.Tools
 			{
 				// The seemingly redundant cast is necessary to coerce the value to float
 				// else the result might have a higher precision
-				result = (float)((exclusiveEnd - start) * Uniform() + start);
+				// ReSharper disable RedundantCast
+				result = (float)((exclusiveEnd - start) * UniformSingle() + start);
+				// ReSharper restore RedundantCast
 			} while (result >= exclusiveEnd);
 			// The loop is necessary, because rounding errors might push the result so it's equal to exclusiveEnd, which would violate the contract
 			// But that event is *very* rare
@@ -128,10 +131,10 @@ namespace Merkator.Tools
 
 		public double Gaussian()
 		{
-			double localGaussStore = this.gaussStore;
+			double localGaussStore = _gaussStore;
 			if (!double.IsNaN(localGaussStore))
 			{
-				this.gaussStore = double.NaN;
+				_gaussStore = double.NaN;
 				return localGaussStore;
 			}
 			else
@@ -144,7 +147,7 @@ namespace Merkator.Tools
 
 				double gauss1 = radius * Math.Cos(angle);
 				double gauss2 = radius * Math.Sin(angle);
-				this.gaussStore = gauss2;
+				_gaussStore = gauss2;
 				return gauss1;
 			}
 		}
@@ -164,12 +167,12 @@ namespace Merkator.Tools
 			Contract.Requires(bufferSizeInBytes >= 8);
 			Contract.Requires(bufferSizeInBytes % 4 == 0);
 			Contract.Requires(provider != null);
-			byte[] byteBuffer = new byte[bufferSizeInBytes];
-			this.buffer = new int[bufferSizeInBytes / 4];
-			this.provider = (int[] randomData) =>
+			var byteBuffer = new byte[bufferSizeInBytes];
+			Buffer = new int[bufferSizeInBytes / 4];
+			_provider = randomIntData =>
 				{
 					provider(byteBuffer);
-					Buffer.BlockCopy(byteBuffer, 0, buffer, 0, bufferSizeInBytes);
+					System.Buffer.BlockCopy(byteBuffer, 0, randomIntData, 0, bufferSizeInBytes);
 				};
 		}
 
@@ -178,8 +181,8 @@ namespace Merkator.Tools
 			Contract.Requires(bufferSizeInBytes >= 8);
 			Contract.Requires(bufferSizeInBytes % 4 == 0);
 			Contract.Requires(provider != null);
-			this.provider = provider;
-			this.buffer = new int[bufferSizeInBytes / 4];
+			_provider = provider;
+			Buffer = new int[bufferSizeInBytes / 4];
 		}
 
 		public double Exponential()
@@ -206,16 +209,16 @@ namespace Merkator.Tools
 
 		public bool Bool()
 		{
-			var localBitStore = bitStore;
+			var localBitStore = _bitStore;
 			if (localBitStore > 1)
 			{
-				bitStore = localBitStore >> 1;
+				_bitStore = localBitStore >> 1;
 				return (localBitStore & 1) != 0;
 			}
 			else
 			{
 				localBitStore = UInt32();
-				bitStore = (localBitStore >> 1) | 0x80000000;
+				_bitStore = (localBitStore >> 1) | 0x80000000;
 				return (localBitStore & 1) != 0;
 			}
 		}
@@ -232,16 +235,16 @@ namespace Merkator.Tools
 
 		public byte Byte()
 		{
-			var localByteStore = byteStore;
+			var localByteStore = _byteStore;
 			if (localByteStore >= 0x100)
 			{
-				byteStore = localByteStore >> 8;
+				_byteStore = localByteStore >> 8;
 				return (byte)localByteStore;
 			}
 			else
 			{
 				localByteStore = UInt32();
-				byteStore = (localByteStore >> 8) | 0x01000000;
+				_byteStore = (localByteStore >> 8) | 0x01000000;
 				return (byte)localByteStore;
 			}
 		}
@@ -253,42 +256,42 @@ namespace Merkator.Tools
 
 		public ushort UInt16()
 		{
-			var localShortStore = shortStore;
+			var localShortStore = _shortStore;
 			if (localShortStore >= 0x10000)
 			{
-				shortStore = localShortStore >> 16;
+				_shortStore = localShortStore >> 16;
 				return (ushort)localShortStore;
 			}
 			else
 			{
 				localShortStore = UInt32();
-				shortStore = localShortStore >> 16 | 0x00010000;
+				_shortStore = localShortStore >> 16 | 0x00010000;
 				return (ushort)localShortStore;
 			}
 		}
 
 		public int Int32()
 		{
-			int index = --this.index;
+			int index = --Index;
 			if (index < 0)
 			{
 				Refill();
-				index = buffer.Length - 1;
-				this.index = index;
+				index = Buffer.Length - 1;
+				Index = index;
 			}
-			return buffer[index];
+			return Buffer[index];
 		}
 
 		public uint UInt32()
 		{
-			int index = --this.index;
+			int index = --Index;
 			if (index < 0)
 			{
 				Refill();
-				index = buffer.Length - 1;
-				this.index = index;
+				index = Buffer.Length - 1;
+				Index = index;
 			}
-			return (uint)buffer[index];
+			return (uint)Buffer[index];
 		}
 
 		public Int64 Int64()
@@ -298,32 +301,36 @@ namespace Merkator.Tools
 
 		public UInt64 UInt64()
 		{
-			int index = (this.index -= 2);
+			int index = (Index -= 2);
 			if (index < 0)
 			{
 				Refill();
-				index = buffer.Length - 2;
-				this.index = index;
+				index = Buffer.Length - 2;
+				Index = index;
 			}
-			return (ulong)(uint)buffer[index] << 32 | (uint)buffer[index + 1];
+			return (ulong)(uint)Buffer[index] << 32 | (uint)Buffer[index + 1];
 		}
 
 		public void Bytes(byte[] data, int start, int count)
 		{
-			int byteIndex = index * sizeof(int);
+			int byteIndex = Index * sizeof(int);
 			while (count > byteIndex)
 			{
-				Buffer.BlockCopy(buffer, 0, data, start, byteIndex);
+				System.Buffer.BlockCopy(Buffer, 0, data, start, byteIndex);
 				start += byteIndex;
+				count -= byteIndex;
 				Refill();
-				byteIndex = buffer.Length * sizeof(int);
+				byteIndex = Buffer.Length * sizeof(int);
 			}
 			byteIndex -= count;
-			Buffer.BlockCopy(buffer, byteIndex, data, start, count);
-			index = byteIndex / sizeof(int);
+			System.Buffer.BlockCopy(Buffer, byteIndex, data, start, count);
+			Index = byteIndex / sizeof(int);
 		}
 
-		private static DefaultRandomGen _default = new DefaultRandomGen();
+		public void Bytes(byte[] data)
+		{
+			Bytes(data, 0, data.Length);
+		}
 
 		/// <summary>
 		/// Returns a threadsafe global instance of `IRandomGen`.
@@ -337,50 +344,86 @@ namespace Merkator.Tools
 			}
 		}
 
+		private uint InternalUniformUInt(uint maxResult)
+		{
+			uint rand;
+			uint count = maxResult + 1;
+
+			if (maxResult < 0x100)
+			{
+				uint usefulCount = (0x100 / count) * count;
+				do
+				{
+					rand = Byte();
+				} while (rand >= usefulCount);
+				return rand % count;
+			}
+			else if (maxResult < 0x10000)
+			{
+				uint usefulCount = (0x10000 / count) * count;
+				do
+				{
+					rand = UInt16();
+				} while (rand >= usefulCount);
+				return rand % count;
+			}
+			else if (maxResult != uint.MaxValue)
+			{
+				uint usefulCount = (uint.MaxValue / count) * count;//reduces upper bound by 1, to avoid long division
+				do
+				{
+					rand = UInt32();
+				} while (rand >= usefulCount);
+				return rand % count;
+			}
+			else
+			{
+				return UInt32();
+			}
+		}
+
+		private ulong InternalUniformUInt(ulong maxResult)
+		{
+			if (maxResult < 0x100000000)
+				return InternalUniformUInt((uint)maxResult);
+			else if (maxResult < ulong.MaxValue)
+			{
+				ulong rand;
+				ulong count = maxResult + 1;
+				ulong usefulCount = (ulong.MaxValue / count) * count;//reduces upper bound by 1, since ulong can't represent any more
+				do
+				{
+					rand = UInt64();
+				} while (rand >= usefulCount);
+				return rand % count;
+			}
+			else
+				return UInt64();
+		}
+
 		public int UniformInt(int count)
 		{
-			return (int)UniformInt((uint)count);
+			return (int)InternalUniformUInt((uint)count - 1);
 		}
 
 		public uint UniformUInt(uint count)
 		{
-			Contract.Requires(count > 0);
-			Contract.Ensures(Contract.Result<uint>() < count);
-			uint max;
-			uint rand;
-			uint maxUseful;
-			do
-			{
-				if (count <= byte.MaxValue)
-				{
-					max = byte.MaxValue;
-					rand = Byte();
-				}
-				else if (count <= ushort.MaxValue)
-				{
-					max = ushort.MaxValue;
-					rand = UInt16();
-				}
-				else
-				{
-					max = uint.MaxValue;
-					rand = UInt32();
-				}
-				maxUseful = (max / count) * count;
-			}
-			while (rand > maxUseful);
+			return InternalUniformUInt(count - 1);
+		}
 
-			return rand % count;
+		public long UniformInt(long count)
+		{
+			return (long)InternalUniformUInt((ulong)count - 1);
 		}
 
 		public ulong UniformUInt(ulong count)
 		{
-			throw new NotImplementedException();
+			return InternalUniformUInt(count - 1);
 		}
 
 		public int UniformIntStartEnd(int start, int inclusiveEnd)
 		{
-			return start + UniformInt(inclusiveEnd - start + 1);
+			return start + (int)InternalUniformUInt((uint)inclusiveEnd - (uint)start);
 		}
 
 		public int UniformIntStartCount(int start, int count)
@@ -388,19 +431,14 @@ namespace Merkator.Tools
 			return start + UniformInt(count);
 		}
 
-		public long UniformInt(long count)
-		{
-			throw new NotImplementedException();
-		}
-
 		public long UniformIntStartEnd(long start, long inclusiveEnd)
 		{
-			return start + (long)UniformUInt((ulong)(inclusiveEnd - start + 1));
+			return start + (long)InternalUniformUInt((ulong)inclusiveEnd - (ulong)start);
 		}
 
 		public long UniformIntStartCount(long start, long count)
 		{
-			throw new NotImplementedException();
+			return start + UniformInt(count);
 		}
 
 		public int Binomial(int n, double probability)

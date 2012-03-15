@@ -2,9 +2,11 @@
 *.user
 *.ncb
 *.vsp
+*.psess
 .svn/
 bin/
 obj/
 Debug/
 Release/
 TestResults/
+_ReSharper*/

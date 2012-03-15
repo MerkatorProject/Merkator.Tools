@@ -38,7 +38,8 @@ namespace Merkator.Tools.Tests.Random
 				{
 					fails++;
 					if (fails > 0xFFF && fails > 0x1000 * hits)
-						throw new InvalidOperationException("Less than one in 4000 taken samples was within the given range for binning. Aborted to prevent endless loop.");
+						throw new InvalidOperationException(
+							"Less than one in 4000 taken samples was within the given range for binning. Aborted to prevent endless loop.");
 				}
 			}
 
@@ -57,6 +58,62 @@ namespace Merkator.Tools.Tests.Random
 
 			foreach (ulong n in bins)
 				Assert.IsTrue(Math.Abs((long)(n - e)) < 4 * Math.Sqrt(e));
+		}
+
+		[TestMethod]
+		public void PerfTest()
+		{
+			var rng = RandomGen.CreateFast();
+			var buf = new byte[8 * 1024];
+			for (int i = 0; i < 100000; i++)
+				rng.Bytes(buf);
+		}
+
+		[TestMethod]
+		public void PerfTest2()
+		{
+			var rng = RandomGen.Create();
+			for (int i = 0; i < 100000000; i++)
+				rng.UniformUInt(127);
+		}
+
+		[TestMethod]
+		public void UniformIntTest1()
+		{
+			const int samplesPerBucket = 1000;
+			UniformIntTest(5, samplesPerBucket);
+			UniformIntTest(96, samplesPerBucket);
+
+			UniformIntTest(126, samplesPerBucket);
+			UniformIntTest(127, samplesPerBucket);
+			UniformIntTest(128, samplesPerBucket);
+			UniformIntTest(129, samplesPerBucket);
+			UniformIntTest(130, samplesPerBucket);
+
+			UniformIntTest(254, samplesPerBucket);
+			UniformIntTest(255, samplesPerBucket);
+			UniformIntTest(256, samplesPerBucket);
+			UniformIntTest(257, samplesPerBucket);
+			UniformIntTest(258, samplesPerBucket);
+
+			UniformIntTest(65534, samplesPerBucket);
+			UniformIntTest(65535, samplesPerBucket);
+			UniformIntTest(65536, samplesPerBucket);
+			UniformIntTest(65537, samplesPerBucket);
+			UniformIntTest(65538, samplesPerBucket);
+		}
+
+		private static void UniformIntTest(int buckets, int samplesPerBucket)
+		{
+			var rng = RandomGen.Create();
+			var hist = new int[buckets];
+			for (int i = 0; i < samplesPerBucket * buckets; i++)
+			{
+				hist[rng.UniformUInt((uint)buckets)]++;
+			}
+			var error = hist.Select(n => (long)(n - samplesPerBucket)).Select(delta => delta * delta).Sum()
+				* 1.0 / Math.Sqrt(buckets) / samplesPerBucket;
+			//Assert.IsTrue(error < 20, buckets + " " + error);
 		}
 	}
 }

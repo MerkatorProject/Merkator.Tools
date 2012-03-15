@@ -1,24 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics.Contracts;
 
 namespace Merkator.Tools
 {
 	internal sealed class DefaultRandomGen : IRandomGen
 	{
 		[ThreadStatic]
-		private static RandomGen threadInstance;
+		private static RandomGen _threadInstance;
 
-		private static RandomGen Instance
+		internal static RandomGen Instance
 		{
 			get
 			{
-				var inst = threadInstance;
+				Contract.Ensures(Contract.Result<RandomGen>() != null);
+				var inst = _threadInstance;
 				if (inst == null)
 				{
 					inst = RandomGen.Create();
-					threadInstance = inst;
+					_threadInstance = inst;
 				}
 				return inst;
 			}
@@ -192,6 +191,11 @@ namespace Merkator.Tools
 		public ulong UniformUInt(ulong count)
 		{
 			return Instance.UniformUInt(count);
+		}
+
+		public void Bytes(byte[] data)
+		{
+			Instance.Bytes(data);
 		}
 	}
 }

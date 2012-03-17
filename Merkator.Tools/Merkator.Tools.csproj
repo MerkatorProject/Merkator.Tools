@@ -95,6 +95,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArrayHelpers.cs" />
     <Compile Include="ImmutableBytes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Random\DefaultRandomGen.cs" />

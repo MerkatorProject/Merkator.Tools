@@ -38,10 +38,7 @@ namespace Merkator.Tools
 
 		public override string ToString()
 		{
-			if (_data == null)
-				return "<null>";
-			else
-				return BitConverter.ToString(_data).Replace("-", "");
+			return ToHex();
 		}
 
 		public override bool Equals(object obj)
@@ -135,5 +132,18 @@ namespace Merkator.Tools
 		}
 
 		#endregion
+
+		public string ToBase32()
+		{
+			throw new NotImplementedException();
+		}
+
+		public string ToHex()
+		{
+			if (_data == null)
+				return "<null>";
+			else
+				return BitConverter.ToString(_data).Replace("-", "");
+		}
 	}
 }

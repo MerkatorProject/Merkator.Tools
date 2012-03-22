@@ -145,5 +145,14 @@ namespace Merkator.Tools
 			else
 				return BitConverter.ToString(_data).Replace("-", "");
 		}
+
+		public static bool operator ==(ImmutableBytes b1, ImmutableBytes b2)
+		{
+			return b1.Equals(b2);
+		}
+		public static bool operator !=(ImmutableBytes b1, ImmutableBytes b2)
+		{
+			return !(b1 == b2);
+		}
 	}
 }

@@ -56,23 +56,29 @@ namespace Merkator.Tools
 		{
 			Contract.Requires(numberOfInts >= 0);
 			Contract.Requires(numberOfInts <= Buffer.Length);
-			Index -= numberOfInts;
-			if (Index < 0)
+			unchecked
 			{
-				Refill();
-				Index = Buffer.Length - numberOfInts;
+				Index -= numberOfInts;
+				if (Index < 0)
+				{
+					Refill();
+					Index = Buffer.Length - numberOfInts;
+				}
 			}
 		}
 
 		public double Uniform()
 		{
-			ulong value = UInt64();
-			//chosen so that result < 1 even when value&mask==mask
-			const ulong count = 1ul << 53;
-			const ulong mask = count - 1;
-			const double multiplier = (1 / (double)count);//Exactly representable
-			double result = (value & mask) * multiplier;
-			return result;
+			unchecked
+			{
+				ulong value = UInt64();
+				//chosen so that result < 1 even when value&mask==mask
+				const ulong count = 1ul << 53;
+				const ulong mask = count - 1;
+				const double multiplier = (1 / (double)count); //Exactly representable
+				double result = (value & mask) * multiplier;
+				return result;
+			}
 		}
 
 		public double UniformStartEnd(double start, double exclusiveEnd)
@@ -99,13 +105,16 @@ namespace Merkator.Tools
 
 		public float UniformSingle()
 		{
-			uint value = UInt32();
-			//chosen so that result < 1 even when value&mask==mask
-			const ulong count = 1ul << 24;
-			const ulong mask = count - 1;
-			const float multiplier = (1 / (float)count);//Exactly representable
-			float result = (value & mask) * multiplier;
-			return result;
+			unchecked
+			{
+				uint value = UInt32();
+				//chosen so that result < 1 even when value&mask==mask
+				const ulong count = 1ul << 24;
+				const ulong mask = count - 1;
+				const float multiplier = (1 / (float)count); //Exactly representable
+				float result = (value & mask) * multiplier;
+				return result;
+			}
 		}
 
 		public float UniformSingleStartEnd(float start, float exclusiveEnd)
@@ -209,17 +218,21 @@ namespace Merkator.Tools
 
 		public bool Bool()
 		{
-			var localBitStore = _bitStore;
-			if (localBitStore > 1)
+			unchecked
 			{
-				_bitStore = localBitStore >> 1;
-				return (localBitStore & 1) != 0;
-			}
-			else
-			{
-				localBitStore = UInt32();
-				_bitStore = (localBitStore >> 1) | 0x80000000;
-				return (localBitStore & 1) != 0;
+
+				var localBitStore = _bitStore;
+				if (localBitStore > 1)
+				{
+					_bitStore = localBitStore >> 1;
+					return (localBitStore & 1) != 0;
+				}
+				else
+				{
+					localBitStore = UInt32();
+					_bitStore = (localBitStore >> 1) | 0x80000000;
+					return (localBitStore & 1) != 0;
+				}
 			}
 		}
 
@@ -230,101 +243,128 @@ namespace Merkator.Tools
 
 		public sbyte SByte()
 		{
-			return (sbyte)Byte();
+			unchecked
+			{
+				return (sbyte)Byte();
+			}
 		}
 
 		public byte Byte()
 		{
-			var localByteStore = _byteStore;
-			if (localByteStore >= 0x100)
+			unchecked
 			{
-				_byteStore = localByteStore >> 8;
-				return (byte)localByteStore;
-			}
-			else
-			{
-				localByteStore = UInt32();
-				_byteStore = (localByteStore >> 8) | 0x01000000;
-				return (byte)localByteStore;
+				var localByteStore = _byteStore;
+				if (localByteStore >= 0x100)
+				{
+					_byteStore = localByteStore >> 8;
+					return (byte) localByteStore;
+				}
+				else
+				{
+					localByteStore = UInt32();
+					_byteStore = (localByteStore >> 8) | 0x01000000;
+					return (byte) localByteStore;
+				}
 			}
 		}
 
 		public short Int16()
 		{
-			return (short)UInt16();
+			unchecked
+			{
+				return (short) UInt16();
+			}
 		}
 
 		public ushort UInt16()
 		{
-			var localShortStore = _shortStore;
-			if (localShortStore >= 0x10000)
+			unchecked
 			{
-				_shortStore = localShortStore >> 16;
-				return (ushort)localShortStore;
-			}
-			else
-			{
-				localShortStore = UInt32();
-				_shortStore = localShortStore >> 16 | 0x00010000;
-				return (ushort)localShortStore;
+				var localShortStore = _shortStore;
+				if (localShortStore >= 0x10000)
+				{
+					_shortStore = localShortStore >> 16;
+					return (ushort) localShortStore;
+				}
+				else
+				{
+					localShortStore = UInt32();
+					_shortStore = localShortStore >> 16 | 0x00010000;
+					return (ushort) localShortStore;
+				}
 			}
 		}
 
 		public int Int32()
 		{
-			int index = --Index;
-			if (index < 0)
+			unchecked
 			{
-				Refill();
-				index = Buffer.Length - 1;
-				Index = index;
+				int index = --Index;
+				if (index < 0)
+				{
+					Refill();
+					index = Buffer.Length - 1;
+					Index = index;
+				}
+				return Buffer[index];
 			}
-			return Buffer[index];
 		}
 
 		public uint UInt32()
 		{
-			int index = --Index;
-			if (index < 0)
+			unchecked
 			{
-				Refill();
-				index = Buffer.Length - 1;
-				Index = index;
+				int index = --Index;
+				if (index < 0)
+				{
+					Refill();
+					index = Buffer.Length - 1;
+					Index = index;
+				}
+				return (uint) Buffer[index];
 			}
-			return (uint)Buffer[index];
 		}
 
 		public Int64 Int64()
 		{
-			return (long)UInt64();
+			unchecked
+			{
+				return (long) UInt64();
+			}
 		}
 
 		public UInt64 UInt64()
 		{
-			int index = (Index -= 2);
-			if (index < 0)
+			unchecked
 			{
-				Refill();
-				index = Buffer.Length - 2;
-				Index = index;
+				int index = (Index -= 2);
+				if (index < 0)
+				{
+					Refill();
+					index = Buffer.Length - 2;
+					Index = index;
+				}
+				return (ulong) (uint) Buffer[index] << 32 | (uint) Buffer[index + 1];
 			}
-			return (ulong)(uint)Buffer[index] << 32 | (uint)Buffer[index + 1];
 		}
 
 		public void Bytes(byte[] data, int start, int count)
 		{
-			int byteIndex = Index * sizeof(int);
-			while (count > byteIndex)
+			unchecked
 			{
-				System.Buffer.BlockCopy(Buffer, 0, data, start, byteIndex);
-				start += byteIndex;
-				count -= byteIndex;
-				Refill();
-				byteIndex = Buffer.Length * sizeof(int);
+				int byteIndex = Index*sizeof (int);
+				while (count > byteIndex)
+				{
+					System.Buffer.BlockCopy(Buffer, 0, data, start, byteIndex);
+					start += byteIndex;
+					count -= byteIndex;
+					Refill();
+					byteIndex = Buffer.Length*sizeof (int);
+				}
+				byteIndex -= count;
+				System.Buffer.BlockCopy(Buffer, byteIndex, data, start, count);
+				Index = byteIndex/sizeof (int);
 			}
-			byteIndex -= count;
-			System.Buffer.BlockCopy(Buffer, byteIndex, data, start, count);
-			Index = byteIndex / sizeof(int);
 		}
 
 		public void Bytes(byte[] data)
@@ -346,110 +386,143 @@ namespace Merkator.Tools
 
 		private uint InternalUniformUInt(uint maxResult)
 		{
-			uint rand;
-			uint count = maxResult + 1;
+			unchecked
+			{
+				uint rand;
+				uint count = maxResult + 1;
 
-			if (maxResult < 0x100)
-			{
-				uint usefulCount = (0x100 / count) * count;
-				do
+				if (maxResult < 0x100)
 				{
-					rand = Byte();
-				} while (rand >= usefulCount);
-				return rand % count;
-			}
-			else if (maxResult < 0x10000)
-			{
-				uint usefulCount = (0x10000 / count) * count;
-				do
+					uint usefulCount = (0x100/count)*count;
+					do
+					{
+						rand = Byte();
+					} while (rand >= usefulCount);
+					return rand%count;
+				}
+				else if (maxResult < 0x10000)
 				{
-					rand = UInt16();
-				} while (rand >= usefulCount);
-				return rand % count;
-			}
-			else if (maxResult != uint.MaxValue)
-			{
-				uint usefulCount = (uint.MaxValue / count) * count;//reduces upper bound by 1, to avoid long division
-				do
+					uint usefulCount = (0x10000/count)*count;
+					do
+					{
+						rand = UInt16();
+					} while (rand >= usefulCount);
+					return rand%count;
+				}
+				else if (maxResult != uint.MaxValue)
 				{
-					rand = UInt32();
-				} while (rand >= usefulCount);
-				return rand % count;
-			}
-			else
-			{
-				return UInt32();
+					uint usefulCount = (uint.MaxValue/count)*count; //reduces upper bound by 1, to avoid long division
+					do
+					{
+						rand = UInt32();
+					} while (rand >= usefulCount);
+					return rand%count;
+				}
+				else
+				{
+					return UInt32();
+				}
 			}
 		}
 
 		private ulong InternalUniformUInt(ulong maxResult)
 		{
-			if (maxResult < 0x100000000)
-				return InternalUniformUInt((uint)maxResult);
-			else if (maxResult < ulong.MaxValue)
+			unchecked
 			{
-				ulong rand;
-				ulong count = maxResult + 1;
-				ulong usefulCount = (ulong.MaxValue / count) * count;//reduces upper bound by 1, since ulong can't represent any more
-				do
+				if (maxResult < 0x100000000)
+					return InternalUniformUInt((uint) maxResult);
+				else if (maxResult < ulong.MaxValue)
 				{
-					rand = UInt64();
-				} while (rand >= usefulCount);
-				return rand % count;
+					ulong rand;
+					ulong count = maxResult + 1;
+					ulong usefulCount = (ulong.MaxValue/count)*count; //reduces upper bound by 1, since ulong can't represent any more
+					do
+					{
+						rand = UInt64();
+					} while (rand >= usefulCount);
+					return rand%count;
+				}
+				else
+					return UInt64();
 			}
-			else
-				return UInt64();
 		}
 
 		public int UniformInt(int count)
 		{
-			return (int)InternalUniformUInt((uint)count - 1);
+			unchecked
+			{
+				return (int) InternalUniformUInt((uint) count - 1);
+			}
 		}
 
 		public uint UniformUInt(uint count)
 		{
-			return InternalUniformUInt(count - 1);
+			unchecked
+			{
+				return InternalUniformUInt(count - 1);
+			}
 		}
 
 		public long UniformInt(long count)
 		{
-			return (long)InternalUniformUInt((ulong)count - 1);
+			unchecked
+			{
+				return (long) InternalUniformUInt((ulong) count - 1);
+			}
 		}
 
 		public ulong UniformUInt(ulong count)
 		{
-			return InternalUniformUInt(count - 1);
+			unchecked
+			{
+				return InternalUniformUInt(count - 1);
+			}
 		}
 
 		public int UniformIntStartEnd(int start, int inclusiveEnd)
 		{
-			return start + (int)InternalUniformUInt((uint)inclusiveEnd - (uint)start);
+			unchecked
+			{
+				return start + (int) InternalUniformUInt((uint) inclusiveEnd - (uint) start);
+			}
 		}
 
 		public int UniformIntStartCount(int start, int count)
 		{
-			return start + UniformInt(count);
+			unchecked
+			{
+				return start + UniformInt(count);
+			}
 		}
 
 		public long UniformIntStartEnd(long start, long inclusiveEnd)
 		{
-			return start + (long)InternalUniformUInt((ulong)inclusiveEnd - (ulong)start);
+			unchecked
+			{
+				return start + (long) InternalUniformUInt((ulong) inclusiveEnd - (ulong) start);
+			}
 		}
 
 		public long UniformIntStartCount(long start, long count)
 		{
-			return start + UniformInt(count);
+			unchecked
+			{
+				return start + UniformInt(count);
+			}
 		}
 
 		public int Binomial(int n, double probability)
 		{
-			int result = 0;
-			for (int i = 0; i < n; i++)
+			unchecked
 			{
-				if (Bool(probability))
-					result++;
+				int result = 0;
+				for (int i = 0; i < n; i++)
+				{
+					if (Bool(probability))
+						result++;
+				}
+				return result;
 			}
-			return result;
 		}
 
 		/// <summary>

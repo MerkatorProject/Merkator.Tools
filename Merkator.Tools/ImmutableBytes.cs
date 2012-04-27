@@ -32,6 +32,7 @@ namespace Merkator.Tools
 
 		public bool Equals(ImmutableBytes other)
 		{
+			//ToDo: Optimize
 			return (_data == other._data) ||
 				((_data.Length == other._data.Length) && _data.SequenceEqual(other._data));
 		}
@@ -43,7 +44,7 @@ namespace Merkator.Tools
 
 		public override bool Equals(object obj)
 		{
-			return (obj != null) && Equals((ImmutableBytes)obj);
+			return (obj is ImmutableBytes) && Equals((ImmutableBytes)obj);
 		}
 
 		public override int GetHashCode()

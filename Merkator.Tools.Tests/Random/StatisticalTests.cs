@@ -28,9 +28,9 @@ namespace Merkator.Tools.Tests.Random
 			while (hits < samples)
 			{
 				double random = generator();
-				if (random >= min && random < max)
+				int n = (int)((random - min) / (max - min) * nbins);
+				if (n >= 0 && n < bins.Length)
 				{
-					int n = (int)((random - min) / (max - min) * nbins);
 					bins[n]++;
 					hits++;
 				}
@@ -47,9 +47,17 @@ namespace Merkator.Tools.Tests.Random
 		}
 
 		[TestMethod]
-		public void TestMethod1()
+		public void TestUniform23Bins()
 		{
-			ulong[] bins = FillToBins(23, 0.0, 1.0, RandomGen.Default.Uniform, 50000);
+			// lol this should pass... unless it's off by 4 sigma, ahaha.
+			ulong samples = 8000000;
+			uint binCount = 23;
+			ulong e = samples / binCount;
+
+			ulong[] bins = FillToBins(binCount, 0.0, 1.0, RandomGen.Default.Uniform, samples);
+
+			foreach (ulong n in bins)
+				Assert.IsTrue(Math.Abs((long)(n - e)) < 4 * Math.Sqrt(e));
 		}
 
 		[TestMethod]

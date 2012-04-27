@@ -58,7 +58,7 @@ namespace Merkator.Tools
 		{
 			Contract.Requires(randomData != null);
 			for (int i = 0; i < randomData.Length; i++)
-				randomData[i] = (int)GenerateUInt32();
+				unchecked { randomData[i] = (int)GenerateUInt32(); }
 		}
 	}
 }

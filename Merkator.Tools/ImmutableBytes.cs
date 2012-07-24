@@ -19,6 +19,12 @@ namespace Merkator.Tools
 			get { return default(ImmutableBytes); }
 		}
 
+		public ImmutableBytes(IList<byte> data)
+		{
+			_data = new byte[data.Count];
+			data.CopyTo(_data, 0);
+		}
+
 		public ImmutableBytes(byte[] data, int start, int length)
 		{
 			_data = new byte[length];
